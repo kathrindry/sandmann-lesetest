@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesetest zum Sandmann</title>
+<style>
+:root {
+  /* Plan: Kursfarben Navy und Gold auf ruhigem Grau. Aufgaben als klare Zeilen, Statusleiste unten fest, Ergebnis oben. */
+  --bg: #F3F5F9;
+  --surface: #FFFFFF;
+  --ink: #1C2230;
+  --muted: #586176;
+  --line: #D9DFE9;
+  --navy: #1F3864;
+  --navy-soft: #E4EAF5;
+  --gold: #8A6A00;
+  --gold-line: #BF9000;
+  --gold-soft: #FFF4D6;
+  --ok: #1E7B4B;
+  --ok-soft: #E5F4EB;
+  --bad: #B3261E;
+  --bad-soft: #FBE9E7;
+  --btn-bg: #1F3864;
+  --btn-ink: #FFFFFF;
+  --shadow: 0 -6px 18px rgba(16, 24, 40, 0.08);
+  --font-display: Calibri, Carlito, "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --font-body: Cambria, Caladea, "Source Serif 4", Georgia, serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E1422;
+    --surface: #161E31;
+    --ink: #E7EBF3;
+    --muted: #A4ADBF;
+    --line: #2B3651;
+    --navy: #AFC3EC;
+    --navy-soft: #1E2944;
+    --gold: #E2B53E;
+    --gold-line: #E2B53E;
+    --gold-soft: #3A3117;
+    --ok: #74D6A0;
+    --ok-soft: #13301F;
+    --bad: #FF958C;
+    --bad-soft: #3A1816;
+    --btn-bg: #AFC3EC;
+    --btn-ink: #0E1422;
+    --shadow: 0 -6px 18px rgba(0, 0, 0, 0.4);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E1422;
+  --surface: #161E31;
+  --ink: #E7EBF3;
+  --muted: #A4ADBF;
+  --line: #2B3651;
+  --navy: #AFC3EC;
+  --navy-soft: #1E2944;
+  --gold: #E2B53E;
+  --gold-line: #E2B53E;
+  --gold-soft: #3A3117;
+  --ok: #74D6A0;
+  --ok-soft: #13301F;
+  --bad: #FF958C;
+  --bad-soft: #3A1816;
+  --btn-bg: #AFC3EC;
+  --btn-ink: #0E1422;
+  --shadow: 0 -6px 18px rgba(0, 0, 0, 0.4);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.5;
+}
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+.wrap { max-width: 860px; margin: 0 auto; padding: 24px 20px 8px; }
+
+/* Kopf */
+.top { display: grid; gap: 8px; padding: 4px 0 18px; }
+.eyebrow {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--font-display); font-weight: 700; font-size: 13px;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold);
+}
+.eyebrow svg { flex: none; }
+h1 {
+  font-family: var(--font-display); font-size: clamp(30px, 5vw, 42px); line-height: 1.1;
+  color: var(--navy); margin: 0; text-wrap: balance;
+}
+.lead { font-family: var(--font-display); color: var(--muted); font-size: 17px; margin: 0; font-variant-numeric: tabular-nums; }
+.intro {
+  display: grid; grid-template-columns: 1fr minmax(220px, 270px); gap: 20px; align-items: start;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px;
+}
+.intro ul { margin: 0; padding-left: 1.1em; }
+.intro li { margin: 3px 0; }
+.field label { display: block; font-family: var(--font-display); font-weight: 700; font-size: 15px; margin-bottom: 6px; color: var(--navy); }
+.field input {
+  width: 100%; font-family: var(--font-display); font-size: 17px; padding: 10px 12px;
+  border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink);
+}
+.field small { display: block; color: var(--muted); font-family: var(--font-display); font-size: 13px; margin-top: 6px; }
+
+/* Ergebnis */
+.result {
+  margin-top: 20px; background: var(--surface); border: 1px solid var(--line);
+  border-top: 6px solid var(--gold-line); border-radius: 12px; padding: 20px; display: grid; gap: 16px;
+}
+.result:focus { outline: none; }
+.result h2 { font-family: var(--font-display); font-size: 15px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); margin: 0; }
+.score { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; font-family: var(--font-display); }
+.score .big { font-size: 60px; font-weight: 700; color: var(--navy); line-height: 1; font-variant-numeric: tabular-nums; }
+.score .of { font-size: 20px; color: var(--muted); }
+.score .pct { margin-left: auto; font-size: 22px; font-weight: 700; color: var(--gold); font-variant-numeric: tabular-nums; }
+.verdict { margin: 0; font-size: 18px; }
+.partbars { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.partbar { display: grid; gap: 6px; font-family: var(--font-display); }
+.partbar .lbl { display: flex; justify-content: space-between; font-size: 15px; font-variant-numeric: tabular-nums; }
+.partbar .lbl b { color: var(--navy); }
+.track { height: 10px; background: var(--navy-soft); border-radius: 5px; overflow: hidden; }
+.track span { display: block; height: 100%; background: var(--navy); border-radius: 5px; }
+.reread h3 { font-family: var(--font-display); font-size: 17px; color: var(--navy); margin: 0; }
+.reread p { margin: 8px 0 0; color: var(--muted); font-size: 15px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; margin: 8px 0 0; }
+.chip {
+  font-family: var(--font-display); font-size: 14px; padding: 5px 11px; border-radius: 999px;
+  background: var(--gold-soft); border: 1px solid var(--gold-line); color: var(--ink);
+}
+.chip b { color: var(--gold); margin-left: 4px; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.note { font-family: var(--font-display); font-size: 15px; color: var(--ok); }
+.copybox textarea {
+  width: 100%; min-height: 150px; font-family: var(--font-display); font-size: 15px; padding: 10px;
+  border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink);
+}
+.copybox p { margin: 6px 0 0; font-family: var(--font-display); font-size: 14px; color: var(--muted); }
+.confirm {
+  display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+  font-family: var(--font-display); background: var(--gold-soft); border: 1px solid var(--gold-line);
+  border-radius: 10px; padding: 10px 12px;
+}
+.confirm span { flex: 1 1 220px; }
+
+/* Teile und Aufgaben */
+.part { margin-top: 30px; }
+.part-head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  border-bottom: 3px solid var(--gold-line); padding-bottom: 6px;
+}
+.part-head h2 { font-family: var(--font-display); font-size: 25px; color: var(--navy); margin: 0; }
+.part-head span { font-family: var(--font-display); color: var(--muted); font-size: 15px; font-variant-numeric: tabular-nums; }
+.task { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; margin-top: 16px; overflow: hidden; }
+.task-head {
+  display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center;
+  padding: 13px 18px; background: var(--navy-soft);
+}
+.task-no {
+  font-family: var(--font-display); font-weight: 700; font-size: 12px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--btn-ink); background: var(--btn-bg); border-radius: 999px; padding: 3px 10px;
+}
+.task-title { font-family: var(--font-display); font-weight: 700; font-size: 19px; color: var(--navy); margin: 0; line-height: 1.25; }
+.task-pts { font-family: var(--font-display); font-size: 14px; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.task-hint { margin: 0; padding: 12px 18px 2px; color: var(--muted); font-size: 15px; font-family: var(--font-display); }
+.rows { list-style: none; margin: 0; padding: 4px 0 6px; }
+.row { padding: 13px 18px; border-top: 1px solid var(--line); }
+.row:first-child { border-top: 0; }
+.letter { font-family: var(--font-display); font-weight: 700; color: var(--gold); }
+
+.row-select { display: grid; grid-template-columns: 22px 1fr minmax(220px, 280px); gap: 8px 12px; align-items: center; }
+.row-select .feedback { grid-column: 2 / -1; }
+.quote { font-style: italic; }
+select {
+  width: 100%; font-family: var(--font-display); font-size: 16px; color: var(--ink);
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 9px 10px; min-height: 44px;
+}
+select:disabled, input:disabled + span { opacity: 1; }
+
+.row-single fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+.row-single legend { padding: 0; margin-bottom: 8px; font-weight: 600; display: flex; gap: 10px; }
+.opts { display: grid; gap: 6px; padding-left: 32px; }
+.opt {
+  display: grid; grid-template-columns: 22px 1fr; gap: 8px; align-items: start;
+  padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; background: var(--surface);
+}
+.opt input { margin: 4px 0 0; width: 18px; height: 18px; accent-color: var(--navy); }
+.opt:has(input:checked) { border-color: var(--navy); background: var(--navy-soft); }
+.row-single .feedback { margin-left: 32px; }
+
+.row-order h4 { font-family: var(--font-display); font-size: 17px; color: var(--navy); margin: 0 0 8px; }
+.order-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.step {
+  display: grid; grid-template-columns: 30px 1fr auto; gap: 10px; align-items: center;
+  border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px 6px 10px; background: var(--surface);
+}
+.step .pos {
+  font-family: var(--font-display); font-weight: 700; color: var(--btn-ink); background: var(--btn-bg);
+  width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 14px;
+}
+.mv-group { display: flex; gap: 6px; }
+.mv {
+  width: 44px; height: 40px; display: grid; place-items: center; border-radius: 8px;
+  border: 1px solid var(--line); background: var(--bg); color: var(--navy); cursor: pointer;
+}
+.mv:disabled { opacity: 0.35; cursor: default; }
+
+.btn {
+  font-family: var(--font-display); font-weight: 700; font-size: 16px; border: 0; border-radius: 10px;
+  padding: 11px 18px; background: var(--btn-bg); color: var(--btn-ink); cursor: pointer; min-height: 44px;
+}
+.btn.secondary { background: transparent; color: var(--navy); border: 1.5px solid var(--navy); }
+.btn:focus-visible, select:focus-visible, input:focus-visible, .mv:focus-visible, .opt:has(input:focus-visible) {
+  outline: 3px solid var(--gold-line); outline-offset: 2px;
+}
+
+/* Rückmeldung je Aufgabe */
+.feedback {
+  font-family: var(--font-display); font-size: 15px; line-height: 1.45; border-radius: 8px;
+  padding: 9px 12px; margin-top: 8px; border-left: 4px solid var(--line); background: var(--bg);
+}
+.feedback .verdict-line { font-weight: 700; display: flex; align-items: center; gap: 6px; }
+.feedback p { margin: 4px 0 0; }
+.feedback ol { margin: 4px 0 0; padding-left: 1.3em; }
+.feedback .where { color: var(--muted); }
+.is-right .feedback { border-left-color: var(--ok); background: var(--ok-soft); }
+.is-right .feedback .verdict-line { color: var(--ok); }
+.is-wrong .feedback, .is-open .feedback { border-left-color: var(--bad); background: var(--bad-soft); }
+.is-wrong .feedback .verdict-line, .is-open .feedback .verdict-line { color: var(--bad); }
+.is-partial .feedback { border-left-color: var(--gold-line); background: var(--gold-soft); }
+.is-partial .feedback .verdict-line { color: var(--gold); }
+.opt.is-key { border-color: var(--ok); background: var(--ok-soft); }
+.opt.is-chosen-wrong { border-color: var(--bad); background: var(--bad-soft); }
+.is-wrong select, .is-open select { border-color: var(--bad); }
+.is-right select { border-color: var(--ok); }
+
+/* Statusleiste */
+.statusbar { position: sticky; bottom: 0; z-index: 5; margin-top: 28px; background: var(--surface); border-top: 1px solid var(--line); box-shadow: var(--shadow); }
+.statusbar .inner { max-width: 860px; margin: 0 auto; padding: 12px 20px; display: grid; gap: 10px; }
+.status-main { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.progress { flex: 1 1 220px; font-family: var(--font-display); font-size: 15px; font-variant-numeric: tabular-nums; }
+.progress .bar { height: 6px; background: var(--navy-soft); border-radius: 3px; overflow: hidden; margin-top: 6px; }
+.progress .bar span { display: block; height: 100%; width: 0; background: var(--gold-line); transition: width 0.2s ease; }
+
+footer.foot { max-width: 860px; margin: 0 auto; padding: 18px 20px 26px; font-family: var(--font-display); font-size: 13px; color: var(--muted); }
+
+@media (max-width: 640px) {
+  .wrap { padding: 18px 16px 8px; }
+  .intro { grid-template-columns: 1fr; }
+  .row { padding: 12px 14px; }
+  .row-select { grid-template-columns: 22px 1fr; }
+  .row-select select { grid-column: 2; }
+  .opts { padding-left: 0; }
+  .row-single .feedback { margin-left: 0; }
+  .task-head { grid-template-columns: 1fr auto; }
+  .task-no { justify-self: start; }
+  .task-title { grid-column: 1 / -1; grid-row: 2; }
+  .partbars { grid-template-columns: 1fr; }
+  .score .big { font-size: 48px; }
+  .statusbar .inner { padding: 10px 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .progress .bar span { transition: none; }
+}
+</style>
+</head>
+<body>
+<main class="wrap" id="top">
+  <header class="top">
+    <div class="eyebrow">
+      <svg width="34" height="20" viewBox="0 0 34 20" aria-hidden="true"><path d="M2 10 C 9 1.5, 25 1.5, 32 10 C 25 18.5, 9 18.5, 2 10 Z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="17" cy="10" r="4.6" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="17" cy="10" r="1.8" fill="currentColor"/></svg>
+      <span>Dry Deu eA Kult · Romantik · Der Sandmann</span>
+    </div>
+    <h1>Lesetest zum „Sandmann“</h1>
+    <p class="lead">Handlung und Figuren · 30 Punkte · etwa 15 Minuten</p>
+  </header>
+
+  <section class="intro" aria-label="Hinweise">
+    <ul>
+      <li>Die Abschnitte heißen so wie in deiner Lesenotiz-Vorlage.</li>
+      <li>Wenn alles beantwortet ist, tippe unten auf „Auswerten“. Du siehst dann deine Punkte und die richtigen Lösungen.</li>
+      <li>Danach kannst du dein Ergebnis kopieren und abgeben.</li>
+      <li>Die Seite speichert nichts und verschickt nichts.</li>
+    </ul>
+    <div class="field">
+      <label for="name">Dein Name</label>
+      <input id="name" type="text" autocomplete="name" placeholder="Vorname Nachname">
+      <small>Erscheint nur im kopierten Ergebnis.</small>
+    </div>
+  </section>
+
+  <section class="result" id="result" tabindex="-1" aria-live="polite" hidden>
+    <h2>Dein Ergebnis</h2>
+    <div class="score"><span class="big" id="resTotal">0</span><span class="of" id="resOf">von 30 Punkten</span><span class="pct" id="resPct">0 %</span></div>
+    <p class="verdict" id="resVerdict"></p>
+    <div class="partbars">
+      <div class="partbar"><div class="lbl"><b>Teil A · Handlung</b><span id="resA">0 von 15</span></div><div class="track"><span id="barA" style="width:0%"></span></div></div>
+      <div class="partbar"><div class="lbl"><b>Teil B · Figuren</b><span id="resB">0 von 15</span></div><div class="track"><span id="barB" style="width:0%"></span></div></div>
+    </div>
+    <div class="reread" id="reread">
+      <h3>Das solltest du nachlesen</h3>
+      <ul class="chips" id="resChips"></ul>
+      <p>Lies diese Abschnitte noch einmal und ergänze in deinen Lesenotizen die Fundstellen (Seite, Zeile).</p>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn" id="copyBtn">Ergebnis kopieren</button>
+      <button type="button" class="btn secondary" id="resetBtn">Neu beginnen</button>
+      <span class="note" id="copyNote" role="status"></span>
+    </div>
+    <div class="confirm" id="resetConfirm" hidden>
+      <span>Alle Antworten löschen und neu beginnen?</span>
+      <button type="button" class="btn" id="resetYes">Ja, neu beginnen</button>
+      <button type="button" class="btn secondary" id="resetNo">Abbrechen</button>
+    </div>
+    <div class="copybox" id="copyFallback" hidden>
+      <label class="sr-only" for="copyText">Ergebnis zum Kopieren</label>
+      <textarea id="copyText" readonly></textarea>
+      <p>Das automatische Kopieren ist hier gesperrt. Markiere den Text und kopiere ihn selbst.</p>
+    </div>
+  </section>
+
+  <section class="part" id="partA" aria-labelledby="partA-title">
+    <div class="part-head"><h2 id="partA-title">Teil A · Handlung</h2><span>15 Punkte</span></div>
+    <div class="tasks"></div>
+  </section>
+
+  <section class="part" id="partB" aria-labelledby="partB-title">
+    <div class="part-head"><h2 id="partB-title">Teil B · Figuren</h2><span>15 Punkte</span></div>
+    <div class="tasks"></div>
+  </section>
+</main>
+
+<div class="statusbar" role="region" aria-label="Fortschritt und Auswertung">
+  <div class="inner">
+    <div class="status-main">
+      <div class="progress"><span id="progressText">0 von 28 beantwortet</span><div class="bar" aria-hidden="true"><span id="progressBar"></span></div></div>
+      <button type="button" class="btn" id="evalBtn">Auswerten</button>
+    </div>
+    <div class="confirm" id="evalConfirm" hidden>
+      <span id="evalConfirmText">Noch nicht alles beantwortet. Trotzdem auswerten?</span>
+      <button type="button" class="btn" id="evalYes">Trotzdem auswerten</button>
+      <button type="button" class="btn secondary" id="evalNo">Weiter bearbeiten</button>
+    </div>
+  </div>
+</div>
+
+<footer class="foot">Textgrundlage: E.T.A. Hoffmann, „Der Sandmann“ (1816). Zitate in heutiger Rechtschreibung, Gedankenstriche als Bindestriche.</footer>
+
+<script>
+(function () {
+'use strict';
+
+// DATA-START
+var SECTIONS = [
+  'Brief 1: Nathanael an Lothar',
+  'Brief 2: Clara an Nathanael',
+  'Brief 3: Nathanael an Lothar',
+  'Einschub des Erzählers',
+  'Heimkehr, Gedicht, Duell',
+  'Studium, Olimpia, Spalanzani',
+  'Schluss: der Ratsturm'
+];
+var SECTION_SHORT = ['Brief 1', 'Brief 2', 'Brief 3', 'Einschub', 'Heimkehr', 'Studium/Olimpia', 'Ratsturm'];
+var FIGURES = ['Nathanael', 'Clara', 'Lothar', 'Coppelius/Coppola', 'Olimpia', 'Spalanzani'];
+
+var TASKS = [
+  {
+    id: 't1', part: 'A', nr: 1, type: 'select', choices: 'sections', points: 1,
+    title: 'In welchem Abschnitt wird das erzählt?',
+    hint: 'Wähle für jedes Ereignis den Abschnitt aus deiner Lesenotiz-Vorlage. Jeder Abschnitt kommt mindestens einmal vor.',
+    items: [
+      { id: 't1a', text: 'Ein Wetterglashändler bietet Nathanael seine Ware an. Nathanael droht, ihn die Treppe hinunterzuwerfen.', expl: 'Mit diesem Besuch beginnt der erste Brief: Der Händler Coppola erinnert Nathanael an Coppelius.' },
+      { id: 't1b', text: 'Nathanaels Vater stirbt bei einer Explosion, Coppelius ist danach verschwunden.', expl: 'Davon erzählt Nathanael im ersten Brief, als er auf seine Kindheit zurückblickt.' },
+      { id: 't1c', text: 'Die nächtlichen Treffen von Vater und Coppelius werden nüchtern als alchemistische Versuche erklärt.', expl: 'Clara erklärt im zweiten Brief Nathanaels Kindheitserlebnisse vernünftig.' },
+      { id: 't1d', text: 'Nathanael sieht durch einen Spalt im Vorhang eine junge Frau, die regungslos dasitzt.', expl: 'Im dritten Brief beschreibt Nathanael so Spalanzanis Tochter Olimpia.' },
+      { id: 't1e', text: 'Der Erzähler spricht die Lesenden direkt an und überlegt, wie er seine Geschichte beginnen soll.', expl: 'Nach den drei Briefen meldet sich der Erzähler selbst zu Wort.' },
+      { id: 't1f', text: 'Nathanael liest Clara ein Gedicht vor, in dem Coppelius ihre Augen berührt.', expl: 'Das geschieht bei Nathanaels Besuch zu Hause und führt zum Streit mit Clara und Lothar.' },
+      { id: 't1g', text: 'Nathanael kauft einem Händler ein kleines Taschenperspektiv ab.', expl: 'Zurück in G. kauft Nathanael Coppola das Perspektiv ab und beobachtet damit Olimpia.' },
+      { id: 't1h', text: 'Ein Freund nennt Olimpia starr und seelenlos und wundert sich über Nathanaels Verliebtheit.', expl: 'Nach Spalanzanis Fest spricht Siegmund so mit Nathanael über Olimpia.' },
+      { id: 't1i', text: 'Clara zeigt auf einen seltsamen kleinen grauen Busch.', expl: 'Das geschieht auf dem Ratsturm. Kurz darauf greift Nathanael zum Perspektiv.' }
+    ]
+  },
+  {
+    id: 't2', part: 'A', nr: 2, type: 'single', points: 1,
+    title: 'Fragen zur Handlung',
+    hint: 'Wähle jeweils eine Antwort.',
+    items: [
+      { id: 't2a', q: 'Warum antwortet Clara auf Nathanaels ersten Brief?', sec: [1],
+        options: [
+          { k: 'a', t: 'Lothar hat ihr den Brief gegeben, weil er selbst keinen Rat wusste.' },
+          { k: 'b', t: 'Nathanael hat den Brief aus Versehen an sie statt an Lothar adressiert.' },
+          { k: 'c', t: 'Nathanaels Mutter hat sie gebeten, ihn zu beruhigen.' },
+          { k: 'd', t: 'Nathanael hat sie im Brief ausdrücklich um ihre Meinung gebeten.' }
+        ],
+        expl: 'Der Brief war für Lothar gedacht, ging aber an Clara. Sie liest ihn und antwortet selbst.' },
+      { id: 't2b', q: 'Warum hält Nathanael Coppola im dritten Brief nicht mehr für Coppelius?', sec: [2],
+        options: [
+          { k: 'a', t: 'Coppola hat die Stadt kurz nach seinem Besuch für immer verlassen.' },
+          { k: 'b', t: 'Clara hat herausgefunden, dass Coppelius längst gestorben ist.' },
+          { k: 'c', t: 'Lothar hat Coppelius kurz zuvor in der Heimatstadt gesehen.' },
+          { k: 'd', t: 'Professor Spalanzani kennt Coppola seit Jahren als Italiener, Coppelius aber war Deutscher.' }
+        ],
+        expl: 'Spalanzanis Auskunft beruhigt Nathanael vorerst. Später kehren seine Zweifel zurück.' },
+      { id: 't2c', q: 'Was geschieht, nachdem Nathanael erkannt hat, dass Olimpia ein Automat ist?', sec: [5],
+        options: [
+          { k: 'a', t: 'Er verfällt dem Wahnsinn, geht auf Spalanzani los und wird ins Tollhaus gebracht.' },
+          { k: 'b', t: 'Er kehrt sofort zu Clara zurück und bittet sie um Verzeihung.' },
+          { k: 'c', t: 'Er zeigt Spalanzani wegen Betrugs bei der Polizei an.' },
+          { k: 'd', t: 'Er verbrennt seine Gedichte und verlässt die Stadt.' }
+        ],
+        expl: 'Nach dem Streit um Olimpia packt Nathanael der Wahnsinn. Er kommt ins Tollhaus.' },
+      { id: 't2d', q: 'Was löst auf dem Ratsturm Nathanaels letzten Anfall aus?', sec: [6],
+        options: [
+          { k: 'a', t: 'Clara erzählt ihm, dass sie Olimpia gekannt hat.' },
+          { k: 'b', t: 'Er hört unten auf dem Markt Spalanzanis Stimme.' },
+          { k: 'c', t: 'Er schaut durch Coppolas Taschenperspektiv auf Clara.' },
+          { k: 'd', t: 'Lothar wirft ihm vor, wieder düstere Gedichte zu schreiben.' }
+        ],
+        expl: 'Nathanael findet das Perspektiv in seiner Tasche und richtet es auf Clara. Dann bricht der Wahnsinn wieder aus.' },
+      { id: 't2e', q: 'Was erzählt der letzte Absatz über Clara?', sec: [6],
+        options: [
+          { k: 'a', t: 'Sie geht ins Kloster und trauert ihr Leben lang um Nathanael.' },
+          { k: 'b', t: 'Sie lebt allein mit Nathanaels Mutter auf dem Landgut.' },
+          { k: 'c', t: 'Sie verliert selbst den Verstand.' },
+          { k: 'd', t: 'Jahre später sieht man sie mit einem freundlichen Mann und zwei Jungen vor einem Landhaus.' }
+        ],
+        expl: 'Clara findet das ruhige häusliche Glück, das ihr Nathanael nie hätte geben können.' }
+    ]
+  },
+  {
+    id: 't3', part: 'A', nr: 3, type: 'single', points: 1,
+    title: 'Zusammenfassen im Präsens',
+    hint: 'Deine Zusammenfassungen stehen im Präsens.',
+    items: [
+      { id: 't3a', q: 'Welcher Satz ist für eine Zusammenfassung richtig formuliert?', sec: [], rule: true,
+        options: [
+          { k: 'a', t: 'Nathanael berichtete Lothar, dass ein Wetterglashändler ihn besucht hatte.' },
+          { k: 'b', t: 'Nathanael berichtet Lothar, dass ein Wetterglashändler ihn besuchte.' },
+          { k: 'c', t: 'Nathanael berichtet Lothar, dass ein Wetterglashändler ihn besucht hat.' },
+          { k: 'd', t: 'Nathanael hat Lothar berichtet, dass ein Wetterglashändler ihn besucht.' }
+        ],
+        expl: 'Das Haupttempus ist Präsens (berichtet). Was vorher geschehen ist, steht im Perfekt (besucht hat), nicht im Präteritum.' }
+    ]
+  },
+  {
+    id: 't4', part: 'B', nr: 4, type: 'select', choices: 'figures', points: 1,
+    title: 'Wer ist gemeint?',
+    hint: 'Ordne jede Aussage einer Figur zu. Figuren können mehrfach vorkommen.',
+    items: [
+      { id: 't4a', text: '… wird von manchen kalt, gefühllos und prosaisch genannt. Der Erzähler lobt den hellen, scharf sichtenden Verstand.', sec: [3], expl: 'So stellt der Erzähler Clara im Einschub vor.' },
+      { id: 't4b', text: '… ist Nathanaels Verlobte und wächst als Waise in Nathanaels Elternhaus auf.', sec: [3], expl: 'Clara und ihr Bruder Lothar sind Waisen. Nathanaels Mutter hat beide aufgenommen.' },
+      { id: 't4c', text: '… rettet Clara auf dem Ratsturm vor Nathanael.', sec: [6], expl: 'Lothar eilt auf den Turm und rettet seine Schwester.' },
+      { id: 't4d', text: '… glaubt, jeder Mensch sei ein Spielball dunkler Mächte, und schreibt düstere Gedichte.', sec: [4], expl: 'Nach seiner Heimkehr ist Nathanael düster und mystisch gestimmt. Clara langweilt das.' },
+      { id: 't4e', text: '… experimentiert nachts mit Nathanaels Vater an einem Herd und ist den Kindern verhasst.', sec: [0], expl: 'Der Advokat Coppelius kommt abends zum Vater. Die Kinder fürchten und hassen ihn.' },
+      { id: 't4f', text: '… bietet Wettergläser, Brillen und Ferngläser zum Kauf an.', sec: [0, 5], expl: 'Das ist der Händler Coppola, in dem Nathanael Coppelius wiederzuerkennen glaubt.' },
+      { id: 't4g', text: '… hat beim Tanz eine eiskalte Hand und sagt kaum mehr als „Ach, ach!“.', sec: [5], expl: 'So erlebt Nathanael Olimpia auf Spalanzanis Fest.' },
+      { id: 't4h', text: '… lehrt Physik und gibt Olimpia als eigene Tochter aus.', sec: [2, 5], expl: 'Spalanzani ist Professor der Physik. Nach dem Skandal muss er die Universität verlassen.' }
+    ]
+  },
+  {
+    id: 't5', part: 'B', nr: 5, type: 'select', choices: 'figures', points: 1,
+    title: 'Wer sagt das?',
+    hint: 'Ordne jedes Zitat der Figur zu, die es sagt.',
+    items: [
+      { id: 't5a', quote: true, text: '„Augen her, Augen her!“', sec: [0], expl: 'Coppelius ruft das bei den nächtlichen Versuchen am Herd, die Nathanael heimlich beobachtet.' },
+      { id: 't5b', quote: true, text: '„Wirf das tolle - unsinnige - wahnsinnige Märchen ins Feuer.“', sec: [4], expl: 'So reagiert Clara auf Nathanaels Gedicht über Coppelius.' },
+      { id: 't5c', quote: true, text: '„Du lebloses, verdammtes Automat!“', sec: [4], expl: 'Damit beschimpft Nathanael Clara, nachdem sie sein Gedicht abgelehnt hat.' }
+    ]
+  },
+  {
+    id: 't6', part: 'B', nr: 6, type: 'order', points: 2,
+    title: 'Wie verändert sich Nathanaels Bild einer Figur?',
+    hint: 'Bringe die Stationen mit den Pfeilen in die Reihenfolge, in der sie im Text vorkommen. Ganz richtig: 2 Punkte. Ist nur eine Station verrutscht: 1 Punkt.',
+    items: [
+      { id: 't6a', label: 'Nathanaels Bild von Olimpia', sec: [2, 5],
+        steps: [
+          { k: 'm', t: 'Sie ist für ihn die Einzige, die ihn wirklich versteht.' },
+          { k: 'f', t: 'Sie wirkt starr, als schliefe sie mit offenen Augen.' },
+          { k: 'x', t: 'Sie entpuppt sich als leblose Holzpuppe ohne Augen.' },
+          { k: 'b', t: 'Durch das Perspektiv scheinen ihre Augen lebendig zu strahlen.' }
+        ],
+        expl: 'Im dritten Brief wirkt Olimpia starr. Durch das Perspektiv scheint sie lebendig, dann hält Nathanael sie für die Einzige, die ihn versteht. Am Ende sieht er eine Puppe ohne Augen.' },
+      { id: 't6b', label: 'Nathanaels Bild von Clara', sec: [0, 4, 5, 6],
+        steps: [
+          { k: 'r', t: 'Er hat sie fast vergessen, weil er nur noch an Olimpia denkt.' },
+          { k: 'h', t: 'Er hält sie für eine Holzpuppe und will sie vom Turm stoßen.' },
+          { k: 'w', t: 'Sie ist sein „holdes Engelsbild“, an das er in der Ferne denkt.' },
+          { k: 'd', t: 'Sie ist ihm zu kühl und vernünftig für seine düsteren Gedichte.' }
+        ],
+        expl: 'Brief 1: Clara ist sein Engelsbild. Bei der Heimkehr findet er sie kühl. In G. vergisst er sie über Olimpia. Auf dem Ratsturm hält er sie im Wahn für eine Holzpuppe.' }
+    ]
+  }
+];
+
+var K = "=0XXigmIsIiciwiIkJCLicnIbpjIiZDdiwSXignIsISbiwiIiJCLiYmIbpjIhZDdiwCM6IyY1QnIsEjOiIWN0JCLzojIhVDdiwSN6ICa0QnIsQjOicGN0JCLzojImRDdiwyM6ISZ0QnIsAjOiQGN0JCLyojIjRDdiwSM6IiY0QnIsEjOiEGN0JCLiMmI6ISYzQnIsICZiojIlJDdiwiIjJiOiQmM0JCLiEmI6IyYyQnIsICZiojIiJDdiwiIiJiOiEmM0JCL2ojIpFDdiwSN6ICaxQnIsUjOicWM0JCL0ojImFDdiwyM6ISZxQnIsIjOiQWM0JCLxojIjFDdiwCM6IiYxQnIsAjOiEWM0Jye";
+// DATA-END
+
+// CORE-START
+function decodeKey(k) {
+  return typeof k === 'string' ? JSON.parse(atob(k.split('').reverse().join(''))) : k;
+}
+function lisLength(seq) {
+  var tails = [];
+  seq.forEach(function (x) {
+    var lo = 0, hi = tails.length;
+    while (lo < hi) { var mid = (lo + hi) >> 1; if (tails[mid] < x) lo = mid + 1; else hi = mid; }
+    tails[lo] = x;
+  });
+  return tails.length;
+}
+function scoreItem(task, answer, key) {
+  var max = task.points;
+  if (task.type === 'order') {
+    if (!answer || !answer.order) return { points: 0, max: max, correct: false, answered: false };
+    var pos = answer.order.map(function (k) { return key.indexOf(k); });
+    var perfect = pos.every(function (p, i) { return p === i; });
+    var points = perfect ? max : (lisLength(pos) >= key.length - 1 ? max / 2 : 0);
+    return { points: points, max: max, correct: perfect, answered: !!answer.touched };
+  }
+  var answered = answer !== undefined && answer !== null && answer !== '';
+  var correct = answered && String(answer) === String(key);
+  return { points: correct ? max : 0, max: max, correct: correct, answered: answered };
+}
+function scoreAll(tasks, answers, key) {
+  var res = { total: 0, max: 0, parts: { A: { points: 0, max: 0 }, B: { points: 0, max: 0 } }, items: {}, weak: {}, ruleWrong: false };
+  tasks.forEach(function (task) {
+    task.items.forEach(function (item) {
+      var r = scoreItem(task, answers[item.id], key[item.id]);
+      res.items[item.id] = r;
+      res.total += r.points; res.max += r.max;
+      res.parts[task.part].points += r.points; res.parts[task.part].max += r.max;
+      if (!r.correct) {
+        var secs = task.choices === 'sections' ? [key[item.id]] : (item.sec || []);
+        secs.forEach(function (s) { res.weak[s] = (res.weak[s] || 0) + 1; });
+        if (item.rule) res.ruleWrong = true;
+      }
+    });
+  });
+  return res;
+}
+// CORE-END
+
+var KEY = decodeKey(K);
+var LETTERS = 'abcdefghijklmnopqrstuvwxyz';
+var state = { answers: {}, evaluated: false, result: null };
+var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function $(sel) { return document.querySelector(sel); }
+function el(tag, attrs, children) {
+  var n = document.createElement(tag);
+  Object.keys(attrs || {}).forEach(function (a) {
+    var v = attrs[a];
+    if (v === null || v === undefined || v === false) return;
+    if (a === 'class') n.className = v; else n.setAttribute(a, v === true ? '' : v);
+  });
+  (children || []).forEach(function (c) { n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+  return n;
+}
+function svgArrow(dir) {
+  var ns = 'http://www.w3.org/2000/svg';
+  var s = document.createElementNS(ns, 'svg');
+  s.setAttribute('width', '18'); s.setAttribute('height', '18'); s.setAttribute('viewBox', '0 0 18 18'); s.setAttribute('aria-hidden', 'true');
+  var p = document.createElementNS(ns, 'path');
+  p.setAttribute('d', dir === 'up' ? 'M4 11.5 L9 6.5 L14 11.5' : 'M4 6.5 L9 11.5 L14 6.5');
+  p.setAttribute('fill', 'none'); p.setAttribute('stroke', 'currentColor'); p.setAttribute('stroke-width', '2.2');
+  p.setAttribute('stroke-linecap', 'round'); p.setAttribute('stroke-linejoin', 'round');
+  s.appendChild(p);
+  return s;
+}
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
+  return a;
+}
+function farOrder(keys) {
+  for (var t = 0; t < 300; t++) {
+    var p = shuffle(keys);
+    var pos = p.map(function (k) { return keys.indexOf(k); });
+    if (lisLength(pos) <= keys.length - 2) return p;
+  }
+  return keys.slice().reverse();
+}
+function ptsLabel(n) { return n === 1 ? '1 Punkt' : String(n).replace('.', ',') + ' Punkte'; }
+function choicesOf(task) { return task.choices === 'sections' ? SECTIONS : FIGURES; }
+function totalItems() { var n = 0; TASKS.forEach(function (t) { n += t.items.length; }); return n; }
+
+function render() {
+  ['A', 'B'].forEach(function (p) { $('#part' + p + ' .tasks').innerHTML = ''; });
+  TASKS.forEach(function (task) { $('#part' + task.part + ' .tasks').appendChild(renderTask(task)); });
+  updateProgress();
+}
+function renderTask(task) {
+  var sec = el('section', { class: 'task', id: task.id, 'aria-labelledby': task.id + '-title' });
+  sec.appendChild(el('div', { class: 'task-head' }, [
+    el('span', { class: 'task-no' }, ['Aufgabe ' + task.nr]),
+    el('h3', { class: 'task-title', id: task.id + '-title' }, [task.title]),
+    el('span', { class: 'task-pts' }, [ptsLabel(task.points * task.items.length)])
+  ]));
+  if (task.hint) sec.appendChild(el('p', { class: 'task-hint' }, [task.hint]));
+  var list = el('ol', { class: 'rows' });
+  task.items.forEach(function (item, i) {
+    if (task.type === 'select') list.appendChild(renderSelectRow(task, item, i));
+    else if (task.type === 'single') list.appendChild(renderSingleRow(task, item, i));
+    else list.appendChild(renderOrderRow(task, item, i));
+  });
+  sec.appendChild(list);
+  return sec;
+}
+function renderSelectRow(task, item, i) {
+  var li = el('li', { class: 'row row-select', id: 'row-' + item.id });
+  var textId = 'txt-' + item.id;
+  var select = el('select', { id: 'in-' + item.id, 'aria-labelledby': textId });
+  select.appendChild(el('option', { value: '' }, [task.choices === 'sections' ? 'Abschnitt wählen' : 'Figur wählen']));
+  choicesOf(task).forEach(function (c, ci) { select.appendChild(el('option', { value: String(ci) }, [c])); });
+  select.addEventListener('change', function () { state.answers[item.id] = select.value; updateProgress(); });
+  li.appendChild(el('span', { class: 'letter', 'aria-hidden': 'true' }, [LETTERS[i]]));
+  li.appendChild(el('div', { class: 'text' + (item.quote ? ' quote' : ''), id: textId }, [item.text]));
+  li.appendChild(select);
+  li.appendChild(el('div', { class: 'feedback', id: 'fb-' + item.id, hidden: true }));
+  return li;
+}
+function renderSingleRow(task, item, i) {
+  var li = el('li', { class: 'row row-single', id: 'row-' + item.id });
+  var fs = el('fieldset', {});
+  fs.appendChild(el('legend', {}, [el('span', { class: 'letter', 'aria-hidden': 'true' }, [LETTERS[i]]), el('span', {}, [item.q])]));
+  var opts = el('div', { class: 'opts' });
+  shuffle(item.options).forEach(function (o) {
+    var id = 'in-' + item.id + '-' + o.k;
+    var input = el('input', { type: 'radio', name: 'in-' + item.id, id: id, value: o.k });
+    input.addEventListener('change', function () { state.answers[item.id] = o.k; updateProgress(); });
+    opts.appendChild(el('label', { class: 'opt', for: id, 'data-k': o.k }, [input, el('span', {}, [o.t])]));
+  });
+  fs.appendChild(opts);
+  li.appendChild(fs);
+  li.appendChild(el('div', { class: 'feedback', id: 'fb-' + item.id, hidden: true }));
+  return li;
+}
+function renderOrderRow(task, item, i) {
+  var li = el('li', { class: 'row row-order', id: 'row-' + item.id });
+  li.appendChild(el('h4', { id: 'lbl-' + item.id }, [item.label]));
+  var ol = el('ol', { class: 'order-list', 'aria-labelledby': 'lbl-' + item.id });
+  state.answers[item.id] = { order: farOrder(KEY[item.id]), touched: false };
+  drawOrder(item, ol);
+  li.appendChild(ol);
+  li.appendChild(el('div', { class: 'feedback', id: 'fb-' + item.id, hidden: true }));
+  return li;
+}
+function stepText(item, k) {
+  for (var i = 0; i < item.steps.length; i++) if (item.steps[i].k === k) return item.steps[i].t;
+  return '';
+}
+function drawOrder(item, ol, focusIdx, focusDir) {
+  ol.innerHTML = '';
+  var ans = state.answers[item.id];
+  var n = ans.order.length;
+  ans.order.forEach(function (k, idx) {
+    var up = el('button', { type: 'button', class: 'mv', 'aria-label': 'Station ' + (idx + 1) + ' nach oben', disabled: idx === 0 || state.evaluated }, [svgArrow('up')]);
+    var down = el('button', { type: 'button', class: 'mv', 'aria-label': 'Station ' + (idx + 1) + ' nach unten', disabled: idx === n - 1 || state.evaluated }, [svgArrow('down')]);
+    up.addEventListener('click', function () { move(item, ol, idx, -1); });
+    down.addEventListener('click', function () { move(item, ol, idx, 1); });
+    ol.appendChild(el('li', { class: 'step' }, [
+      el('span', { class: 'pos', 'aria-hidden': 'true' }, [String(idx + 1)]),
+      el('span', { class: 'step-text' }, [stepText(item, k)]),
+      el('span', { class: 'mv-group' }, [up, down])
+    ]));
+  });
+  if (typeof focusIdx === 'number') {
+    var btns = ol.children[focusIdx].querySelectorAll('button');
+    var b = focusDir < 0 ? btns[0] : btns[1];
+    if (b.disabled) b = focusDir < 0 ? btns[1] : btns[0];
+    b.focus();
+  }
+}
+function move(item, ol, idx, dir) {
+  if (state.evaluated) return;
+  var ans = state.answers[item.id];
+  var j = idx + dir;
+  if (j < 0 || j >= ans.order.length) return;
+  var t = ans.order[idx]; ans.order[idx] = ans.order[j]; ans.order[j] = t;
+  ans.touched = true;
+  drawOrder(item, ol, j, dir);
+  updateProgress();
+}
+
+function answeredCount() {
+  var n = 0;
+  TASKS.forEach(function (task) {
+    task.items.forEach(function (item) {
+      var a = state.answers[item.id];
+      if (task.type === 'order') { if (a && a.touched) n++; }
+      else if (a !== undefined && a !== null && a !== '') n++;
+    });
+  });
+  return n;
+}
+function updateProgress() {
+  var total = totalItems();
+  var n = answeredCount();
+  if (!state.evaluated) $('#progressText').textContent = n + ' von ' + total + ' beantwortet';
+  $('#progressBar').style.width = (state.evaluated ? 100 : Math.round(n / total * 100)) + '%';
+}
+
+function correctText(task, item) {
+  var key = KEY[item.id];
+  if (task.type === 'select') return choicesOf(task)[key];
+  if (task.type === 'single') {
+    for (var i = 0; i < item.options.length; i++) if (item.options[i].k === key) return item.options[i].t;
+  }
+  return '';
+}
+function whereText(task, item) {
+  var secs = task.choices === 'sections' ? [KEY[item.id]] : (item.sec || []);
+  if (!secs.length) return '';
+  return 'Nachlesen: ' + secs.map(function (s) { return SECTIONS[s]; }).join('; ');
+}
+function showFeedback(task, item, r) {
+  var row = document.getElementById('row-' + item.id);
+  var fb = document.getElementById('fb-' + item.id);
+  var status = r.correct ? 'is-right' : (r.points > 0 ? 'is-partial' : (r.answered ? 'is-wrong' : 'is-open'));
+  row.classList.add(status);
+  fb.innerHTML = '';
+  var head;
+  if (r.correct) head = '✓ Richtig' + (task.points > 1 ? ' (' + r.points + ' von ' + r.max + ' Punkten)' : '');
+  else if (r.points > 0) head = 'Fast richtig (' + String(r.points).replace('.', ',') + ' von ' + r.max + ' Punkten)';
+  else head = r.answered ? '✗ Leider falsch' : '✗ Nicht beantwortet';
+  fb.appendChild(el('div', { class: 'verdict-line' }, [head]));
+  if (!r.correct) {
+    if (task.type === 'order') {
+      fb.appendChild(el('p', {}, ['Richtige Reihenfolge:']));
+      fb.appendChild(el('ol', {}, KEY[item.id].map(function (k) { return el('li', {}, [stepText(item, k)]); })));
+    } else {
+      fb.appendChild(el('p', {}, [el('b', {}, ['Richtig: ']), correctText(task, item)]));
+    }
+    fb.appendChild(el('p', {}, [item.expl]));
+    var w = whereText(task, item);
+    if (w) fb.appendChild(el('p', { class: 'where' }, [w]));
+  }
+  fb.hidden = false;
+  if (task.type === 'single') {
+    row.querySelectorAll('.opt').forEach(function (lab) {
+      var k = lab.getAttribute('data-k');
+      if (k === KEY[item.id]) lab.classList.add('is-key');
+      else if (k === state.answers[item.id]) lab.classList.add('is-chosen-wrong');
+    });
+  }
+}
+
+function verdictText(pct) {
+  if (pct >= 90) return 'Sehr sicher gelesen. Deine Lesenotizen tragen.';
+  if (pct >= 75) return 'Gut gelesen. Schließe die kleinen Lücken mit den Abschnitten unten.';
+  if (pct >= 50) return 'Die Grundlagen sitzen, aber es gibt Lücken. Lies die markierten Abschnitte noch einmal.';
+  return 'Lies die Erzählung noch einmal Abschnitt für Abschnitt und ergänze deine Lesenotizen.';
+}
+function fmt(n) { return String(n).replace('.', ','); }
+function weakList(res) {
+  return Object.keys(res.weak).map(Number).sort(function (a, b) { return a - b; });
+}
+function showResult(res) {
+  var pct = Math.round(res.total / res.max * 100);
+  $('#resTotal').textContent = fmt(res.total);
+  $('#resOf').textContent = 'von ' + res.max + ' Punkten';
+  $('#resPct').textContent = pct + ' %';
+  $('#resVerdict').textContent = verdictText(pct);
+  $('#resA').textContent = fmt(res.parts.A.points) + ' von ' + res.parts.A.max;
+  $('#resB').textContent = fmt(res.parts.B.points) + ' von ' + res.parts.B.max;
+  $('#barA').style.width = Math.round(res.parts.A.points / res.parts.A.max * 100) + '%';
+  $('#barB').style.width = Math.round(res.parts.B.points / res.parts.B.max * 100) + '%';
+  var chips = $('#resChips');
+  chips.innerHTML = '';
+  var weak = weakList(res);
+  weak.forEach(function (s) {
+    chips.appendChild(el('li', { class: 'chip' }, [SECTIONS[s], el('b', {}, ['· ' + res.weak[s] + ' Fehler'])]));
+  });
+  if (res.ruleWrong) chips.appendChild(el('li', { class: 'chip' }, ['Tempusregel: Präsens und Perfekt']));
+  $('#reread').hidden = !(weak.length || res.ruleWrong);
+  $('#copyNote').textContent = '';
+  $('#copyFallback').hidden = true;
+  $('#resetConfirm').hidden = true;
+  $('#result').hidden = false;
+}
+function stamp(d) {
+  function p(n) { return String(n).padStart(2, '0'); }
+  return p(d.getDate()) + '.' + p(d.getMonth() + 1) + '.' + d.getFullYear() + ', ' + p(d.getHours()) + ':' + p(d.getMinutes()) + ' Uhr';
+}
+function resultText() {
+  var res = state.result;
+  var name = ($('#name').value || '').trim() || '(ohne Namen)';
+  var weak = weakList(res).map(function (s) { return SECTION_SHORT[s]; });
+  if (res.ruleWrong) weak.push('Tempusregel');
+  var pct = Math.round(res.total / res.max * 100);
+  return [
+    'Lesetest zum „Sandmann“',
+    'Name: ' + name,
+    'Datum: ' + stamp(state.evaluatedAt),
+    'Punkte: ' + fmt(res.total) + ' von ' + res.max + ' (' + pct + ' %)',
+    'Teil A Handlung: ' + fmt(res.parts.A.points) + ' von ' + res.parts.A.max,
+    'Teil B Figuren: ' + fmt(res.parts.B.points) + ' von ' + res.parts.B.max,
+    'Nachlesen: ' + (weak.length ? weak.join(', ') : 'nichts')
+  ].join('\n');
+}
+
+function evaluate() {
+  $('#evalConfirm').hidden = true;
+  var res = scoreAll(TASKS, state.answers, KEY);
+  state.evaluated = true;
+  state.result = res;
+  state.evaluatedAt = new Date();
+  document.querySelectorAll('main select, main input[type=radio], main .mv').forEach(function (x) { x.disabled = true; });
+  TASKS.forEach(function (task) { task.items.forEach(function (item) { showFeedback(task, item, res.items[item.id]); }); });
+  showResult(res);
+  $('#progressText').textContent = 'Ausgewertet: ' + fmt(res.total) + ' von ' + res.max + ' Punkten';
+  updateProgress();
+  var btn = $('#evalBtn');
+  btn.textContent = 'Zum Ergebnis';
+  var r = $('#result');
+  r.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  r.focus({ preventScroll: true });
+}
+function reset() {
+  state = { answers: {}, evaluated: false, result: null };
+  $('#result').hidden = true;
+  $('#evalConfirm').hidden = true;
+  $('#evalBtn').textContent = 'Auswerten';
+  render();
+  window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+}
+
+$('#evalBtn').addEventListener('click', function () {
+  if (state.evaluated) {
+    var r = $('#result');
+    r.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    r.focus({ preventScroll: true });
+    return;
+  }
+  var open = totalItems() - answeredCount();
+  if (open > 0) {
+    $('#evalConfirmText').textContent = (open === 1 ? 'Eine Aufgabe ist' : open + ' Aufgaben sind') + ' noch offen. Trotzdem auswerten?';
+    $('#evalConfirm').hidden = false;
+    $('#evalNo').focus();
+  } else {
+    evaluate();
+  }
+});
+$('#evalYes').addEventListener('click', evaluate);
+$('#evalNo').addEventListener('click', function () { $('#evalConfirm').hidden = true; $('#evalBtn').focus(); });
+$('#copyBtn').addEventListener('click', function () {
+  var text = resultText();
+  var done = function () { $('#copyNote').textContent = 'Ergebnis kopiert.'; };
+  var fallback = function () {
+    var ta = $('#copyText');
+    ta.value = text;
+    $('#copyFallback').hidden = false;
+    ta.focus();
+    ta.select();
+  };
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback);
+    else fallback();
+  } catch (e) { fallback(); }
+});
+$('#resetBtn').addEventListener('click', function () { $('#resetConfirm').hidden = false; $('#resetNo').focus(); });
+$('#resetNo').addEventListener('click', function () { $('#resetConfirm').hidden = true; $('#resetBtn').focus(); });
+$('#resetYes').addEventListener('click', reset);
+
+render();
+})();
+</script>
+</body>
+</html>
